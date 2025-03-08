@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "me.drex.worldmanager.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixinextras": {
+    "minVersion": "0.5.0-rc.1"
+  },
+  "mixins": [
+    "ExecuteCommandMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

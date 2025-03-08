@@ -1,0 +1,27 @@
+{
+	"schemaVersion": 1,
+	"id": "worldmanager",
+	"version": "${version}",
+	"name": "WorldManager",
+	"description": "Create and manage worlds in-game, through commands.",
+	"authors": [
+		"Drex"
+	],
+	"license": "MIT",
+	"icon": "assets/worldmanager/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"me.drex.worldmanager.WorldManager"
+		]
+	},
+	"mixins": [
+		"worldmanager.mixins.json"
+	],
+	"accessWidener": "worldmanager.accesswidener",
+	"depends": {
+		"fabricloader": ">=0.16.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
