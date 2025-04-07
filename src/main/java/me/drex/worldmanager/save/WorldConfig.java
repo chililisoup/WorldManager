@@ -7,12 +7,14 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
 
-public record WorldConfig(Holder<DimensionType> type, ChunkGenerator generator, long seed) {
+// TODO Save world time
+public record WorldConfig(Holder<DimensionType> type, ChunkGenerator generator, long seed, boolean tickTime) {
 
     public static final Codec<WorldConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         DimensionType.CODEC.fieldOf("type").forGetter(WorldConfig::type),
         ChunkGenerator.CODEC.fieldOf("generator").forGetter(WorldConfig::generator),
-        Codec.LONG.fieldOf("seed").forGetter(WorldConfig::seed)
+        Codec.LONG.optionalFieldOf("seed", 0L).forGetter(WorldConfig::seed),
+        Codec.BOOL.optionalFieldOf("tick_time", true).forGetter(WorldConfig::tickTime)
     ).apply(instance, instance.stable(
         WorldConfig::new
     )));
@@ -21,7 +23,8 @@ public record WorldConfig(Holder<DimensionType> type, ChunkGenerator generator, 
         return new RuntimeWorldConfig()
             .setGenerator(generator)
             .setDimensionType(type)
-            .setSeed(seed);
+            .setSeed(seed)
+            .setShouldTickTime(tickTime);
     }
 
 }

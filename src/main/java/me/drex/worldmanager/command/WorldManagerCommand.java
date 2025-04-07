@@ -75,6 +75,7 @@ public class WorldManagerCommand {
 
                 ).then(
                     literal("create")
+                        .requires(Permissions.require("worldmanager.command.worldmanager.create", 2))
                         .then(
                             argument("id", ResourceLocationArgument.id())
                                 .executes(context -> {

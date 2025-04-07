@@ -35,6 +35,7 @@ public class ConfigureWorld extends SimpleGui {
     private Holder<DimensionType> type;
     private ChunkGenerator generator;
     private long seed;
+    private boolean tickTime;
 
     public ConfigureWorld(ServerPlayer player, ResourceLocation id) {
         super(MenuType.GENERIC_9x3, player, false);
@@ -50,6 +51,7 @@ public class ConfigureWorld extends SimpleGui {
         this.type = dimensionType.getOrThrow(BuiltinDimensionTypes.OVERWORLD);
         this.generator = server.overworld().getChunkSource().getGenerator();
         this.seed = 0;
+        tickTime = true;
     }
 
     public void build() {
@@ -80,6 +82,13 @@ public class ConfigureWorld extends SimpleGui {
                     }).open();
                 })
         );
+        setSlot(3,
+            builder(Items.CLOCK, "tick_time")
+                .setCallback(() -> {
+                    this.tickTime = !this.tickTime;
+                    build();
+                })
+        );
 
         for (int i = 2 * 9; i < 3 * 9; i++) {
             setSlot(i,
@@ -89,7 +98,8 @@ public class ConfigureWorld extends SimpleGui {
                         WorldConfig config = new WorldConfig(
                             type,
                             generator,
-                            seed
+                            seed,
+                            tickTime
                         );
                         Fantasy fantasy = Fantasy.get(server);
 
@@ -119,6 +129,7 @@ public class ConfigureWorld extends SimpleGui {
                 .addPlaceholder("generator", generator.getTypeNameForDataFixer().map(ResourceKey::location).map(ResourceLocation::toString).orElse("???"))
                 .addPlaceholder("generator_full", lore)
                 .addPlaceholder("seed", seed)
+                .addPlaceholder("tick_time", tickTime)
                 .build());
     }
 }
