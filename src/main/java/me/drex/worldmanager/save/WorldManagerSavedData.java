@@ -1,13 +1,10 @@
 package me.drex.worldmanager.save;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 import xyz.nucleoid.fantasy.Fantasy;
 import xyz.nucleoid.fantasy.RuntimeWorldHandle;
 
@@ -21,6 +18,8 @@ public class WorldManagerSavedData extends SavedData {
     private static final Codec<WorldManagerSavedData> CODEC = Codec.unboundedMap(ResourceLocation.CODEC, WorldConfig.CODEC)
         .xmap(WorldManagerSavedData::new, worldManagerSavedData -> worldManagerSavedData.worlds);
 
+    public static final SavedDataType<WorldManagerSavedData> TYPE = new SavedDataType<>("worldmanager", WorldManagerSavedData::new, CODEC, null);
+    
     private WorldManagerSavedData() {
         this.worlds = new HashMap<>();
     }
@@ -29,21 +28,8 @@ public class WorldManagerSavedData extends SavedData {
         this.worlds = new HashMap<>(worlds);
     }
 
-    public static SavedData.Factory<WorldManagerSavedData> factory() {
-        return new SavedData.Factory<>(WorldManagerSavedData::new, WorldManagerSavedData::load, null);
-    }
-
-    public static WorldManagerSavedData load(CompoundTag compoundTag, HolderLookup.Provider provider) {
-        return CODEC.decode(RegistryOps.create(NbtOps.INSTANCE, provider), compoundTag).getOrThrow().getFirst();
-    }
-
     public static WorldManagerSavedData getSavedData(MinecraftServer server) {
-        return server.overworld().getDataStorage().computeIfAbsent(WorldManagerSavedData.factory(), "worldmanager");
-    }
-
-    @Override
-    public CompoundTag save(CompoundTag compoundTag, HolderLookup.Provider provider) {
-        return (CompoundTag) CODEC.encode(this, RegistryOps.create(NbtOps.INSTANCE, provider), compoundTag).getOrThrow();
+        return server.overworld().getDataStorage().computeIfAbsent(TYPE);
     }
 
     public void loadWorlds(MinecraftServer server) {
