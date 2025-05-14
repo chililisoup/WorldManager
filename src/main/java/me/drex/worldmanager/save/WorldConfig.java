@@ -19,6 +19,10 @@ public record WorldConfig(Holder<DimensionType> type, ChunkGenerator generator, 
         WorldConfig::new
     )));
 
+    public WorldConfig withSeed(long seed) {
+        return new WorldConfig(type, generator, seed, tickTime);
+    }
+
     public RuntimeWorldConfig toRuntimeWorldConfig() {
         return new RuntimeWorldConfig()
             .setGenerator(generator)

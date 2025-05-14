@@ -1,8 +1,13 @@
 {
   "worldmanager.command.exception.world_already_exists": "A world with that id already exists!",
   "worldmanager.command.exception.unknown_world": "Unknown world id!",
+  "worldmanager.command.import.exception.level_dat": "Failed to find/read level.dat in '${file}'",
+  "worldmanager.command.import.exception.rar5": "Failed to extract rar file '${file}'. RAR v5 is not supported, please extract manually!",
+  "worldmanager.command.import.exception.unknown_extension": "Failed to extract file '${file}'. Unknown extension: ${extension}!",
+  "worldmanager.command.import.exception.ioexception": "Failed to extract/copy file '${file}'. Check console for more details!",
 
   "worldmanager.command.create": "World ${id} has been created successfully. <aqua><underlined><run_cmd '/wm tp ${id}'>Click to teleport to it!",
+  "worldmanager.command.import": "World ${id} has been imported successfully. <aqua><underlined><run_cmd '/wm tp ${id}'>Click to teleport to it!",
   "worldmanager.command.delete": "World ${id} has been deleted successfully!",
   "worldmanager.command.teleport": "Teleporting to ${id}",
 
