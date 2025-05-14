@@ -29,7 +29,7 @@ public class WorldList extends PagedGui<Map.Entry<ResourceLocation, WorldConfig>
 
     @Override
     protected GuiElementBuilder toGuiElement(Map.Entry<ResourceLocation, WorldConfig> entry) {
-        return new GuiElementBuilder(SelectChunkGenerator.toIcon(entry.getValue().generator()))
+        return new GuiElementBuilder(SelectChunkGenerator.toIcon(entry.getValue().generator))
             .setName(Component.literal(entry.getKey().toString()));
     }
 }

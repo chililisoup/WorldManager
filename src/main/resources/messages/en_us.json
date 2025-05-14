@@ -9,7 +9,7 @@
   "worldmanager.command.create": "World ${id} has been created successfully. <aqua><underlined><run_cmd '/wm tp ${id}'>Click to teleport to it!",
   "worldmanager.command.import": "World ${id} has been imported successfully. <aqua><underlined><run_cmd '/wm tp ${id}'>Click to teleport to it!",
   "worldmanager.command.delete": "World ${id} has been deleted successfully!",
-  "worldmanager.command.teleport": "Teleporting to ${id}",
+  "worldmanager.command.spawn": "Teleporting to world spawn of ${id}",
 
   "worldmanager.gui.generic.back.name": "<red>Back",
 

@@ -2,25 +2,34 @@ package me.drex.worldmanager.save;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import me.drex.worldmanager.util.CodecUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
 
 // TODO Save world time
-public record WorldConfig(Holder<DimensionType> type, ChunkGenerator generator, long seed, boolean tickTime) {
+public final class WorldConfig {
 
     public static final Codec<WorldConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        DimensionType.CODEC.fieldOf("type").forGetter(WorldConfig::type),
-        ChunkGenerator.CODEC.fieldOf("generator").forGetter(WorldConfig::generator),
-        Codec.LONG.optionalFieldOf("seed", 0L).forGetter(WorldConfig::seed),
-        Codec.BOOL.optionalFieldOf("tick_time", true).forGetter(WorldConfig::tickTime)
-    ).apply(instance, instance.stable(
-        WorldConfig::new
-    )));
+        DimensionType.CODEC.fieldOf("type").forGetter(wc -> wc.type),
+        ChunkGenerator.CODEC.fieldOf("generator").forGetter(wc -> wc.generator),
+        Codec.LONG.optionalFieldOf("seed", 0L).forGetter(wc -> wc.seed),
+        Codec.BOOL.optionalFieldOf("tick_time", true).forGetter(wc -> wc.tickTime),
+        CodecUtil.optionalFieldOf(WorldData.CODEC, "data", WorldData::new, false).forGetter(wc -> wc.data)
+    ).apply(instance, instance.stable(WorldConfig::new)));
+    public final Holder<DimensionType> type;
+    public final ChunkGenerator generator;
+    public long seed;
+    public final boolean tickTime;
+    public WorldData data;
 
-    public WorldConfig withSeed(long seed) {
-        return new WorldConfig(type, generator, seed, tickTime);
+    public WorldConfig(Holder<DimensionType> type, ChunkGenerator generator, long seed, boolean tickTime, WorldData data) {
+        this.type = type;
+        this.generator = generator;
+        this.seed = seed;
+        this.tickTime = tickTime;
+        this.data = data;
     }
 
     public RuntimeWorldConfig toRuntimeWorldConfig() {
@@ -30,5 +39,4 @@ public record WorldConfig(Holder<DimensionType> type, ChunkGenerator generator, 
             .setSeed(seed)
             .setShouldTickTime(tickTime);
     }
-
 }

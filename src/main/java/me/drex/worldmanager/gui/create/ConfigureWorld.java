@@ -4,6 +4,7 @@ import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import me.drex.message.api.LocalizedMessage;
 import me.drex.worldmanager.save.WorldConfig;
+import me.drex.worldmanager.save.WorldData;
 import me.drex.worldmanager.save.WorldManagerSavedData;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -99,7 +100,8 @@ public class ConfigureWorld extends SimpleGui {
                             type,
                             generator,
                             seed,
-                            tickTime
+                            tickTime,
+                            new WorldData()
                         );
                         Fantasy fantasy = Fantasy.get(server);
 

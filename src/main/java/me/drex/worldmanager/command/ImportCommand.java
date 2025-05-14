@@ -13,7 +13,9 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import me.drex.worldmanager.WorldManager;
 import me.drex.worldmanager.mixin.MinecraftServerAccessor;
+import me.drex.worldmanager.save.Location;
 import me.drex.worldmanager.save.WorldConfig;
+import me.drex.worldmanager.save.WorldData;
 import me.drex.worldmanager.save.WorldManagerSavedData;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.loader.api.FabricLoader;
@@ -30,6 +32,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.io.FilenameUtils;
 import xyz.nucleoid.fantasy.Fantasy;
 import xyz.nucleoid.fantasy.RuntimeWorldHandle;
@@ -256,23 +260,33 @@ public class ImportCommand {
     private static Optional<WorldConfig> parseWorldConfig(InputStream is, MinecraftServer server) throws IOException {
         CompoundTag tag = NbtIo.readCompressed(is, NbtAccounter.unlimitedHeap());
         return tag.getCompound("Data")
-            .flatMap(data -> data.getCompound("WorldGenSettings")
-                .flatMap(worldGenSettings -> {
-                    long seed = worldGenSettings.getLongOr("seed", 0);
-                    return worldGenSettings.getCompound("dimensions")
-                        // TODO add option to pick dimension
-                        .flatMap(dimensions -> dimensions.getCompound("minecraft:overworld")
-                            .map(overworld -> {
-                                try {
-                                    return WorldConfig.CODEC.decode(RegistryOps.create(NbtOps.INSTANCE, server.registryAccess()), overworld)
-                                        .getOrThrow(IllegalStateException::new)
-                                        .getFirst()
-                                        .withSeed(seed);
-                                } catch (IllegalStateException e) {
-                                    WorldManager.LOGGER.error("Failed to decode level.dat", e);
-                                    return null;
-                                }
-                            }));
-                }));
+            .flatMap(data -> {
+                var spawnX = data.getIntOr("SpawnX", 0);
+                var spawnY = data.getIntOr("SpawnY", 0);
+                var spawnZ = data.getIntOr("SpawnZ", 0);
+                var spawnAngle = data.getFloatOr("SpawnAngle", 0);
+                return data.getCompound("WorldGenSettings")
+                    .flatMap(worldGenSettings -> {
+                        long seed = worldGenSettings.getLongOr("seed", 0);
+                        return worldGenSettings.getCompound("dimensions")
+                            // TODO add option to pick dimension
+                            .flatMap(dimensions -> dimensions.getCompound("minecraft:overworld")
+                                .map(overworld -> {
+                                    try {
+                                        WorldConfig config = WorldConfig.CODEC.decode(RegistryOps.create(NbtOps.INSTANCE, server.registryAccess()), overworld)
+                                            .getOrThrow(IllegalStateException::new)
+                                            .getFirst();
+                                        WorldData worldData = new WorldData();
+                                        worldData.spawnLocation = Optional.of(new Location(new Vec3(spawnX, spawnY, spawnZ), new Vec2(spawnAngle, 0)));
+                                        config.seed = seed;
+                                        config.data = worldData;
+                                        return config;
+                                    } catch (IllegalStateException e) {
+                                        WorldManager.LOGGER.error("Failed to decode level.dat", e);
+                                        return null;
+                                    }
+                                }));
+                    });
+            });
     }
 }

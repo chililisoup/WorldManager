@@ -56,6 +56,10 @@ public class WorldManagerSavedData extends SavedData {
         return false;
     }
 
+    public WorldConfig getConfig(ResourceLocation id) {
+        return worlds.get(id);
+    }
+
     public Map<ResourceLocation, WorldConfig> getWorlds() {
         return new HashMap<>(worlds);
     }
