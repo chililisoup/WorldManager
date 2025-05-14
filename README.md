@@ -6,6 +6,7 @@ The main command is `/worldmanager`. It has a shorter alias `/wm`.
 
 - `/wm` opens an overview gui of all custom worlds that have been created through this mod
 - `/wm delete <id>` deletes the specified world, kicking all players that are currently in it
+- `/wm tp <id> [<targets>]` teleports to the specified world to the players last location.
 
 ### Create
 `/wm create <id>` opens a gui where you can configure your world (dimension type, chunk generator and seed)
@@ -18,7 +19,7 @@ The main command is `/worldmanager`. It has a shorter alias `/wm`.
 ### Spawn
 `/wm setspawn` sets the world spawn of the current world to your position.
 
-`/wm spawn <id>` teleports you to the specified world spawn. If the spawn point is not set, it uses the vanilla spawn point logic.
+`/wm spawn <id> [<targets>]` teleports to the specified world spawn. If the spawn point is not set, it uses the vanilla spawn point logic.
 
 
 The file / folder needs to contain a valid `level.dat` file.

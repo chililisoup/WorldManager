@@ -9,10 +9,10 @@ import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
-public record Location(Vec3 pos, Vec2 rot) {
+public record Location(Vec3 position, Vec2 rotation) {
     public static final Codec<Location> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        Vec3.CODEC.fieldOf("pos").forGetter(Location::pos),
-        Vec2.CODEC.fieldOf("rot").forGetter(Location::rot)
+        Vec3.CODEC.fieldOf("position").forGetter(Location::position),
+        Vec2.CODEC.fieldOf("rotation").forGetter(Location::rotation)
     ).apply(instance, instance.stable(Location::new)));
 
     public Location(Entity entity) {
@@ -24,6 +24,6 @@ public record Location(Vec3 pos, Vec2 rot) {
     }
 
     public TeleportTransition toTeleportTransition(ServerLevel level) {
-        return new TeleportTransition(level, pos, Vec3.ZERO, rot.y, rot.x, TeleportTransition.DO_NOTHING);
+        return new TeleportTransition(level, position, Vec3.ZERO, rotation.y, rotation.x, TeleportTransition.DO_NOTHING);
     }
 }

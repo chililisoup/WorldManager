@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - World importing
 - World spawn logic
+- Save player world locations
 
 ## [1.1.0] - 2025-04-10
 ### Added
