@@ -6,9 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- World importing
-- World spawn logic
-- Save player world locations
+- World importing from zips, rars and folders
+- World spawn locations
+- Save players last world locations
+- Superflat world generator presets
 
 ## [1.1.0] - 2025-04-10
 ### Added
