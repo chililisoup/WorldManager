@@ -257,6 +257,7 @@ public class ImportCommand {
         return config.get();
     }
 
+    //? if >= 1.21.5 {
     private static Optional<WorldConfig> parseWorldConfig(InputStream is, MinecraftServer server) throws IOException {
         CompoundTag tag = NbtIo.readCompressed(is, NbtAccounter.unlimitedHeap());
         return tag.getCompound("Data")
@@ -271,22 +272,43 @@ public class ImportCommand {
                         return worldGenSettings.getCompound("dimensions")
                             // TODO add option to pick dimension
                             .flatMap(dimensions -> dimensions.getCompound("minecraft:overworld")
-                                .map(overworld -> {
-                                    try {
-                                        WorldConfig config = WorldConfig.CODEC.decode(RegistryOps.create(NbtOps.INSTANCE, server.registryAccess()), overworld)
-                                            .getOrThrow(IllegalStateException::new)
-                                            .getFirst();
-                                        WorldData worldData = new WorldData();
-                                        worldData.spawnLocation = Optional.of(new Location(new Vec3(spawnX, spawnY, spawnZ), new Vec2(spawnAngle, 0)));
-                                        config.seed = seed;
-                                        config.data = worldData;
-                                        return config;
-                                    } catch (IllegalStateException e) {
-                                        WorldManager.LOGGER.error("Failed to decode level.dat", e);
-                                        return null;
-                                    }
+                                .flatMap(overworld -> {
+                                    return createWorldConfig(server, overworld, spawnX, spawnY, spawnZ, spawnAngle, seed);
                                 }));
                     });
             });
     }
+    //?} else {
+    /*private static Optional<WorldConfig> parseWorldConfig(InputStream is, MinecraftServer server) throws IOException {
+        CompoundTag tag = NbtIo.readCompressed(is, NbtAccounter.unlimitedHeap());
+        var data = tag.getCompound("Data");
+
+        var spawnX = data.getInt("SpawnX");
+        var spawnY = data.getInt("SpawnY");
+        var spawnZ = data.getInt("SpawnZ");
+        var spawnAngle = data.getFloat("SpawnAngle");
+        var worldGenSettings = data.getCompound("WorldGenSettings");
+        long seed = worldGenSettings.getLong("seed");
+        // TODO add option to pick dimension
+        var overworld = worldGenSettings.getCompound("dimensions").getCompound("minecraft:overworld");
+        return createWorldConfig(server, overworld, spawnX, spawnY, spawnZ, spawnAngle, seed);
+    }
+    *///?}
+
+    private static Optional<WorldConfig> createWorldConfig(MinecraftServer server, CompoundTag overworld, int spawnX, int spawnY, int spawnZ, float spawnAngle, long seed) {
+        try {
+            WorldConfig config = WorldConfig.CODEC.decode(RegistryOps.create(NbtOps.INSTANCE, server.registryAccess()), overworld)
+                .getOrThrow(IllegalStateException::new)
+                .getFirst();
+            WorldData worldData = new WorldData();
+            worldData.spawnLocation = Optional.of(new Location(new Vec3(spawnX, spawnY, spawnZ), new Vec2(spawnAngle, 0)));
+            config.seed = seed;
+            config.data = worldData;
+            return Optional.of(config);
+        } catch (IllegalStateException e) {
+            WorldManager.LOGGER.error("Failed to decode level.dat", e);
+            return Optional.empty();
+        }
+    }
+
 }

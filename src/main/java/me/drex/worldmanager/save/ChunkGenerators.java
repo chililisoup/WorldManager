@@ -17,7 +17,6 @@ import xyz.nucleoid.fantasy.util.VoidChunkGenerator;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class ChunkGenerators {
     public static final List<Preset> PRESETS = new LinkedList<>();
@@ -35,13 +34,13 @@ public class ChunkGenerators {
                 PRESETS.add(new Preset(title, icon, generator));
             });
 
-            for (Map.Entry<ResourceKey<FlatLevelGeneratorPreset>, FlatLevelGeneratorPreset> entry : registry.lookupOrThrow(Registries.FLAT_LEVEL_GENERATOR_PRESET).entrySet()) {
-                ResourceKey<FlatLevelGeneratorPreset> key = entry.getKey();
-                FlatLevelGeneratorPreset flatPreset = entry.getValue();
+            registry.lookupOrThrow(Registries.FLAT_LEVEL_GENERATOR_PRESET).listElements().forEach(reference -> {
+                ResourceKey<FlatLevelGeneratorPreset> key = reference.key();
+                FlatLevelGeneratorPreset flatPreset = reference.value();
                 Component title = Component.translatable("generator.minecraft.flat").append(": ")
                     .append(Component.translatable("flat_world_preset." + key.location().toLanguageKey()));
                 PRESETS.add(new Preset(title, flatPreset.displayItem().value(), new FlatLevelSource(flatPreset.settings())));
-            }
+            });
             PRESETS.add(new Preset(Component.literal("Void"), Items.STRUCTURE_VOID, new VoidChunkGenerator(registry.lookupOrThrow(Registries.BIOME).get(Biomes.THE_VOID).orElseThrow())));
             PRESETS.add(new Preset(Component.literal("Debug"), Items.COMMAND_BLOCK, new DebugLevelSource(registry.lookupOrThrow(Registries.BIOME).get(Biomes.PLAINS).orElseThrow())));
         });

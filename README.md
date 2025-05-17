@@ -16,14 +16,13 @@ The main command is `/worldmanager`. It has a shorter alias `/wm`.
 ### Import
 `/wm create <id> <file>` allows you to import a world from a zip or rar archive, or from a folder.
 
+The file / folder needs to contain a valid `level.dat` file.
+This will import the overworld dimension of the given world.
+
 ### Spawn
 `/wm setspawn` sets the world spawn of the current world to your position.
 
 `/wm spawn <id> [<targets>]` teleports to the specified world spawn. If the spawn point is not set, it uses the vanilla spawn point logic.
-
-
-The file / folder needs to contain a valid `level.dat` file.
-This will import the overworld dimension of the given world.
 
 ![gui example](media/gui.png)
 

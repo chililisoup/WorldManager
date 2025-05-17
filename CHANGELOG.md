@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2025-05-17
+### Changed
+- Use stonecutter to support 1.21.1, 1.21.4 and 1.21.5
+
+### Fixed
+- Teleport command message
+
 ## [1.2.0] - 2025-05-16
 ### Added
 - World importing from zips, rars and folders

@@ -15,7 +15,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.level.portal./*? if >=1.21.2 {*/ TeleportTransition /*?} else {*/ /*DimensionTransition *//*?}*/;
 
 import java.util.Collection;
 import java.util.List;
@@ -51,10 +51,14 @@ public class SpawnCommand {
             throw UNKNOWN_WORLD.create();
         }
         for (ServerPlayer player : targets) {
-            TeleportTransition teleportTransition = config.data.spawnLocation
+            /*? if >=1.21.2 {*/ TeleportTransition /*?} else {*/ /*DimensionTransition *//*?}*/ teleportTransition = config.data.spawnLocation
                 .map(location -> location.toTeleportTransition(serverLevel))
-                .orElseGet(() -> TeleportTransition.missingRespawnBlock(serverLevel, player, TeleportTransition.DO_NOTHING));
+                .orElseGet(() -> /*? if >=1.21.2 {*/ TeleportTransition /*?} else {*/ /*DimensionTransition *//*?}*/.missingRespawnBlock(serverLevel, player, /*? if >=1.21.2 {*/ TeleportTransition /*?} else {*/ /*DimensionTransition *//*?}*/.DO_NOTHING));
+            //? if >= 1.21.2 {
             player.teleport(teleportTransition);
+             //?} else {
+            /*player.changeDimension(teleportTransition);
+            *///?}
         }
         source.sendSuccess(() -> builder("worldmanager.command.spawn").addPlaceholder("id", id.toString()).build(), false);
         return 1;

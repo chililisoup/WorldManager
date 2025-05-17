@@ -4,7 +4,7 @@ plugins {
 	id 'fabric-loom' version '1.10-SNAPSHOT'
 	id 'maven-publish'
 	id "me.modmuss50.mod-publish-plugin" version "0.8.3"
-	id 'org.jetbrains.changelog' version '2.+'
+	id 'org.jetbrains.changelog' version '2.2.1'
 }
 
 version = project.mod_version + "+" + project.minecraft_version
@@ -29,8 +29,6 @@ loom {
 			sourceSet sourceSets.client
 		}
 	}
-
-	accessWidenerPath.set(file("src/main/resources/worldmanager.accesswidener"))
 }
 
 dependencies {
@@ -59,7 +57,7 @@ dependencies {
 
 publishMods {
 	file = remapJar.archiveFile
-	type = STABLE
+	type = BETA
 	changelog = fetchChangelog()
 
 	displayName = "WorldManager ${version.get()}"
