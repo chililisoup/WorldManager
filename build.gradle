@@ -23,6 +23,10 @@ repositories {
 loom {
 	splitEnvironmentSourceSets()
 
+	runConfigs.all {
+		ideConfigGenerated(true)
+	}
+
 	mods {
 		"worldmanager" {
 			sourceSet sourceSets.main
@@ -57,7 +61,7 @@ dependencies {
 
 publishMods {
 	file = remapJar.archiveFile
-	type = BETA
+	type = STABLE
 	changelog = fetchChangelog()
 
 	displayName = "WorldManager ${version.get()}"

@@ -6,7 +6,6 @@ import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.portal./*? if >=1.21.2 {*/ TeleportTransition /*?} else {*/ /*DimensionTransition *//*?}*/;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
@@ -26,7 +25,7 @@ public record Location(Vec3 position, Vec2 rotation) {
         Vec2.CODEC.fieldOf("rotation").forGetter(Location::rotation)
         //?} else {
         /*VEC_2_CODEC.fieldOf("rotation").forGetter(Location::rotation)
-        *///?}
+         *///?}
     ).apply(instance, instance.stable(Location::new)));
 
     public Location(Entity entity) {
@@ -37,9 +36,7 @@ public record Location(Vec3 position, Vec2 rotation) {
         this(source.getPosition(), source.getRotation());
     }
 
-    public /*? if >=1.21.2 {*/ TeleportTransition /*?} else {*/ /*DimensionTransition *//*?}*/ toTeleportTransition(ServerLevel level) {
-
-
-        return new /*? if >=1.21.2 {*/ TeleportTransition /*?} else {*/ /*DimensionTransition *//*?}*/(level, position, Vec3.ZERO, rotation.y, rotation.x, /*? if >=1.21.2 {*/ TeleportTransition /*?} else {*/ /*DimensionTransition *//*?}*/.DO_NOTHING);
+    public WorldLocation toWorldLocation(ServerLevel level) {
+        return new WorldLocation(level, this);
     }
 }

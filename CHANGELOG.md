@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2025-05-21
+### Changed
+- Allow teleportation to non-custom worlds
+
 ## [1.2.1] - 2025-05-17
 ### Changed
 - Use stonecutter to support 1.21.1, 1.21.4 and 1.21.5

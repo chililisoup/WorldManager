@@ -1,6 +1,5 @@
 package me.drex.worldmanager.command;
 
-//~ transitions
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.playerdata.api.PlayerDataApi;
@@ -8,6 +7,7 @@ import me.drex.worldmanager.WorldManager;
 import me.drex.worldmanager.data.PlayerData;
 import me.drex.worldmanager.save.Location;
 import me.drex.worldmanager.save.WorldConfig;
+import me.drex.worldmanager.save.WorldLocation;
 import me.drex.worldmanager.save.WorldManagerSavedData;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.commands.CommandSourceStack;
@@ -20,10 +20,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.portal./*? if >=1.21.2 {*/ TeleportTransition /*?} else {*/ /*DimensionTransition *//*?}*/;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import static me.drex.message.api.LocalizedMessage.builder;
 import static me.drex.worldmanager.command.WorldManagerCommand.UNKNOWN_WORLD;
@@ -52,31 +52,31 @@ public class TeleportCommand {
         WorldManagerSavedData savedData = WorldManagerSavedData.getSavedData(server);
         WorldConfig config = savedData.getConfig(id);
         ServerLevel serverLevel = source.getServer().getLevel(resourceKey);
-        if (config == null || serverLevel == null) {
+        if (serverLevel == null) {
             throw UNKNOWN_WORLD.create();
         }
+        var spawnLocation = Optional.<Location>empty();
+        if (config != null) {
+            spawnLocation = config.data.spawnLocation;
+        }
         for (ServerPlayer player : targets) {
+            if (player.serverLevel() == serverLevel) continue;
             PlayerData playerData = PlayerDataApi.getCustomDataFor(player, WorldManager.STORAGE);
-            /*? if >=1.21.2 {*/ TeleportTransition /*?} else {*/ /*DimensionTransition *//*?}*/ teleportTransition = null;
+            WorldLocation worldLocation = null;
             if (playerData != null) {
                 Location lastLocation = playerData.locations().get(resourceKey);
                 if (lastLocation != null) {
-                    teleportTransition = lastLocation.toTeleportTransition(serverLevel);
+                    worldLocation = lastLocation.toWorldLocation(serverLevel);
                 }
             }
-            if (teleportTransition == null) {
-                teleportTransition = config.data.spawnLocation
-                    .map(location -> location.toTeleportTransition(serverLevel))
+            if (worldLocation == null) {
+                worldLocation = spawnLocation
+                    .map(location -> location.toWorldLocation(serverLevel))
                     .orElseGet(() ->
-                        /*? if >=1.21.2 {*/ TeleportTransition /*?} else {*/ /*DimensionTransition *//*?}*/.missingRespawnBlock(serverLevel, player, /*? if >=1.21.2 {*/ TeleportTransition /*?} else {*/ /*DimensionTransition *//*?}*/.DO_NOTHING)
+                        WorldLocation.findSpawn(serverLevel, player)
                     );
             }
-            //? if >= 1.21.2 {
-            player.teleport(teleportTransition);
-            //?} else {
-            /*player.changeDimension(teleportTransition);
-            *///?}
-
+            worldLocation.teleport(player);
         }
         source.sendSuccess(() -> builder("worldmanager.command.teleport").addPlaceholder("id", id.toString()).build(), false);
         return 1;
