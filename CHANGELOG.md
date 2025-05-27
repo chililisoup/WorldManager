@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- World icons
+
+### Fixed
+- Set world spawn translation missing
+
 ## [1.2.2] - 2025-05-21
 ### Changed
 - Allow teleportation to non-custom worlds

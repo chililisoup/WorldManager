@@ -4,12 +4,15 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public record Location(Vec3 position, Vec2 rotation) {
 
@@ -38,5 +41,15 @@ public record Location(Vec3 position, Vec2 rotation) {
 
     public WorldLocation toWorldLocation(ServerLevel level) {
         return new WorldLocation(level, this);
+    }
+
+    public Map<String, Component> placeholders() {
+        return new HashMap<>() {{
+            put("position_x", Component.literal(String.format("%.2f", position.x)));
+            put("position_y", Component.literal(String.format("%.2f", position.y)));
+            put("position_z", Component.literal(String.format("%.2f", position.z)));
+            put("rotation_x", Component.literal(String.format("%.2f", rotation.x)));
+            put("rotation_y", Component.literal(String.format("%.2f", rotation.y)));
+        }};
     }
 }

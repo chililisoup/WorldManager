@@ -29,8 +29,8 @@ public class WorldManager implements ModInitializer {
             savedData.loadWorlds(server);
         });
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            WorldManagerCommand.register(dispatcher);
+        CommandRegistrationCallback.EVENT.register((dispatcher, commandBuildContext, environment) -> {
+            WorldManagerCommand.register(dispatcher, commandBuildContext);
         });
     }
 

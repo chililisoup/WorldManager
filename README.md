@@ -7,6 +7,7 @@ The main command is `/worldmanager`. It has a shorter alias `/wm`.
 - `/wm` opens an overview gui of all custom worlds that have been created through this mod
 - `/wm delete <id>` deletes the specified world, kicking all players that are currently in it
 - `/wm tp <id> [<targets>]` teleports to the specified world to the players last location.
+- `/wm seticon <id> <icon>` sets the world icon.
 
 ### Create
 `/wm create <id>` opens a gui where you can configure your world (dimension type, chunk generator and seed)

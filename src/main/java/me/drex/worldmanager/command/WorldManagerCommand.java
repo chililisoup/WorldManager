@@ -6,6 +6,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.drex.worldmanager.gui.list.WorldList;
 import me.drex.worldmanager.save.WorldManagerSavedData;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.resources.ResourceKey;
@@ -27,7 +28,7 @@ public class WorldManagerCommand {
 
     public static final SimpleCommandExceptionType UNKNOWN_WORLD = new SimpleCommandExceptionType(localized("worldmanager.command.exception.unknown_world"));
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandBuildContext) {
         var root = dispatcher.register(
             literal("worldmanager")
                 .requires(Permissions.require("worldmanager.command.worldmanager", 2))
@@ -37,6 +38,7 @@ public class WorldManagerCommand {
                 })
                 .then(DeleteCommand.build())
                 .then(SpawnCommand.build())
+                .then(SetIconCommand.build(commandBuildContext))
                 .then(SetSpawnCommand.build())
                 .then(TeleportCommand.build())
                 .then(CreateCommand.build())

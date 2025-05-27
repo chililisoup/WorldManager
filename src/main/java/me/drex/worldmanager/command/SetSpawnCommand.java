@@ -32,10 +32,14 @@ public class SetSpawnCommand {
         if (config == null) {
             throw UNKNOWN_WORLD.create();
         }
-        config.data.spawnLocation = Optional.of(new Location(source));
+        var location = new Location(source);
+        config.data.spawnLocation = Optional.of(location);
         savedData.setDirty();
 
-        source.sendSuccess(() -> LocalizedMessage.builder("worldmanager.command.setspawn").addPlaceholder("id", id.toString()).build(), false);
+        source.sendSuccess(() -> LocalizedMessage.builder("worldmanager.command.setspawn")
+            .addPlaceholder("id", id.toString())
+            .addPlaceholders(location.placeholders())
+            .build(), false);
         return 1;
     }
 }

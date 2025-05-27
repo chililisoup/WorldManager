@@ -9,6 +9,8 @@
   "worldmanager.command.create": "World ${id} has been created successfully. <aqua><underlined><run_cmd '/wm tp ${id}'>Click to teleport to it!",
   "worldmanager.command.import": "World ${id} has been imported successfully. <aqua><underlined><run_cmd '/wm tp ${id}'>Click to teleport to it!",
   "worldmanager.command.delete": "World ${id} has been deleted successfully!",
+  "worldmanager.command.seticon": "Set world icon for ${id} to ${icon}",
+  "worldmanager.command.setspawn": "Set world spawn point in ${id} to ${position_x} ${position_y} ${position_z}",
   "worldmanager.command.spawn": "Teleporting to world spawn of ${id}",
   "worldmanager.command.teleport": "Teleporting to ${id}",
 
