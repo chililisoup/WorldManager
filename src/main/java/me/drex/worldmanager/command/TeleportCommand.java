@@ -55,30 +55,39 @@ public class TeleportCommand {
         if (serverLevel == null) {
             throw UNKNOWN_WORLD.create();
         }
+        for (ServerPlayer player : targets) {
+            teleport(player, config, id);
+        }
+        source.sendSuccess(() -> builder("worldmanager.command.teleport").addPlaceholder("id", id.toString()).build(), false);
+        return 1;
+    }
+
+    public static boolean teleport(ServerPlayer player, WorldConfig config, ResourceLocation id) {
+        ResourceKey<Level> resourceKey = ResourceKey.create(Registries.DIMENSION, id);
+        ServerLevel serverLevel = player.getServer().getLevel(resourceKey);
+        if (serverLevel == null) return false;
+
+        if (player.serverLevel() == serverLevel) return false;
+        PlayerData playerData = PlayerDataApi.getCustomDataFor(player, WorldManager.STORAGE);
         var spawnLocation = Optional.<Location>empty();
         if (config != null) {
             spawnLocation = config.data.spawnLocation;
         }
-        for (ServerPlayer player : targets) {
-            if (player.serverLevel() == serverLevel) continue;
-            PlayerData playerData = PlayerDataApi.getCustomDataFor(player, WorldManager.STORAGE);
-            WorldLocation worldLocation = null;
-            if (playerData != null) {
-                Location lastLocation = playerData.locations().get(resourceKey);
-                if (lastLocation != null) {
-                    worldLocation = lastLocation.toWorldLocation(serverLevel);
-                }
+        WorldLocation worldLocation = null;
+        if (playerData != null) {
+            Location lastLocation = playerData.locations().get(resourceKey);
+            if (lastLocation != null) {
+                worldLocation = lastLocation.toWorldLocation(serverLevel);
             }
-            if (worldLocation == null) {
-                worldLocation = spawnLocation
-                    .map(location -> location.toWorldLocation(serverLevel))
-                    .orElseGet(() ->
-                        WorldLocation.findSpawn(serverLevel, player)
-                    );
-            }
-            worldLocation.teleport(player);
         }
-        source.sendSuccess(() -> builder("worldmanager.command.teleport").addPlaceholder("id", id.toString()).build(), false);
-        return 1;
+        if (worldLocation == null) {
+            worldLocation = spawnLocation
+                .map(location -> location.toWorldLocation(serverLevel))
+                .orElseGet(() ->
+                    WorldLocation.findSpawn(serverLevel, player)
+                );
+        }
+        worldLocation.teleport(player);
+        return true;
     }
 }

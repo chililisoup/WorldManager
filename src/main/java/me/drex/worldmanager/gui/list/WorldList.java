@@ -1,19 +1,19 @@
 package me.drex.worldmanager.gui.list;
 
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
+import me.drex.worldmanager.command.TeleportCommand;
 import me.drex.worldmanager.gui.util.PagedGui;
 import me.drex.worldmanager.save.WorldConfig;
 import me.drex.worldmanager.save.WorldManagerSavedData;
-import net.minecraft.network.chat.Component;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 import java.util.List;
 import java.util.Map;
 
+import static me.drex.message.api.LocalizedMessage.builder;
 import static me.drex.message.api.LocalizedMessage.localized;
 
 public class WorldList extends PagedGui<Map.Entry<ResourceLocation, WorldConfig>> {
@@ -31,15 +31,21 @@ public class WorldList extends PagedGui<Map.Entry<ResourceLocation, WorldConfig>
     @Override
     protected GuiElementBuilder toGuiElement(Map.Entry<ResourceLocation, WorldConfig> entry) {
         WorldConfig config = entry.getValue();
-        ItemStack icon = config.data.icon;
-        GuiElementBuilder builder;
-        if (icon.isEmpty()) {
-            builder = new GuiElementBuilder(Items.PLAYER_HEAD)
-                .setSkullOwner("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmFkYzA0OGE3Y2U3OGY3ZGFkNzJhMDdkYTI3ZDg1YzA5MTY4ODFlNTUyMmVlZWQxZTNkYWYyMTdhMzhjMWEifX19");
-        } else {
-            builder = new GuiElementBuilder(icon);
-        }
-        return builder.setName(Component.literal(entry.getKey().toString()));
+        ResourceLocation id = entry.getKey();
+        return config.data.iconGuiElement().setName(builder("worldmanager.gui.world_list.entry.name").addPlaceholder("id", id.toString()).build())
+            .addLoreLine(builder("worldmanager.gui.world_list.entry.lore").addPlaceholder("id", id.toString()).build())
+            .setCallback(clickType -> {
+                if (clickType.isLeft) {
+                    if (Permissions.check(player, "worldmanager.command.worldmanager.teleport", 2)) {
+                        if (TeleportCommand.teleport(player, entry.getValue(), id)) {
+                            close();
+                        }
+                    }
+                } else if (clickType.isRight) {
+                    if (Permissions.check(player, "worldmanager.gui.manage", 2)) {
+                        new ManageWorld(player, id, config, this).open();
+                    }
+                }
+            });
     }
-
 }

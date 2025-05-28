@@ -52,17 +52,26 @@ public class SpawnCommand {
         if (serverLevel == null) {
             throw UNKNOWN_WORLD.create();
         }
+        for (ServerPlayer player : targets) {
+            spawn(player, config, id);
+        }
+        source.sendSuccess(() -> builder("worldmanager.command.spawn").addPlaceholder("id", id.toString()).build(), false);
+        return 1;
+    }
+
+    public static boolean spawn(ServerPlayer player, WorldConfig config, ResourceLocation id) {
+        ResourceKey<Level> resourceKey = ResourceKey.create(Registries.DIMENSION, id);
+        ServerLevel serverLevel = player.getServer().getLevel(resourceKey);
+        if (serverLevel == null) return false;
+
         var spawnLocation = Optional.<Location>empty();
         if (config != null) {
             spawnLocation = config.data.spawnLocation;
         }
-        for (ServerPlayer player : targets) {
-            WorldLocation worldLocation = spawnLocation
-                .map(location -> location.toWorldLocation(serverLevel))
-                .orElseGet(() -> WorldLocation.findSpawn(serverLevel, player));
-            worldLocation.teleport(player);
-        }
-        source.sendSuccess(() -> builder("worldmanager.command.spawn").addPlaceholder("id", id.toString()).build(), false);
-        return 1;
+        WorldLocation worldLocation = spawnLocation
+            .map(location -> location.toWorldLocation(serverLevel))
+            .orElseGet(() -> WorldLocation.findSpawn(serverLevel, player));
+        worldLocation.teleport(player);
+        return true;
     }
 }

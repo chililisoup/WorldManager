@@ -6,8 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-05-28
 ### Added
 - World icons
+- World management gui
+- World list / management command
+
+### Changed
+- Improved gui layout
 
 ### Fixed
 - Set world spawn translation missing

@@ -25,6 +25,25 @@
   "worldmanager.gui.select_seed.confirm.name": "<green><bold>Confirm!",
 
   "worldmanager.gui.world_list.title": "World List",
+  "worldmanager.gui.world_list.entry.name": "<yellow>${id}",
+  "worldmanager.gui.world_list.entry.lore": "<gray>Left Click to teleport!\nRight Click to manage world!",
+
+  "worldmanager.gui.manage_world.title": "Manage World ${id}",
+
+  "worldmanager.gui.manage_world.teleport.name": "<aqua>Teleport back!",
+  "worldmanager.gui.manage_world.teleport.lore": "<gray>Teleport to your last location in the world",
+  "worldmanager.gui.manage_world.spawn.name": "<green>Teleport to Spawn!",
+  "worldmanager.gui.manage_world.spawn.lore": "<gray>Teleport to the world spawn",
+  "worldmanager.gui.manage_world.icon.name": "<yellow>Change World Icon!",
+  "worldmanager.gui.manage_world.icon.lore": "<gray>Set the world icon to the item in your hand",
+  "worldmanager.gui.manage_world.delete.name": "<dark_red><bold>Delete World!",
+  "worldmanager.gui.manage_world.delete.lore": "<gray>Deletes the world, kicking all players that are currently in it",
+
+  "worldmanager.gui.confirm_type.title": "<dark_red>Type '${text}' below to confirm",
+  "worldmanager.gui.confirm_type.confirm.name": "<dark_green><bold>Confirm!",
+  "worldmanager.gui.confirm_type.confirm.lore": "<gray>Click to confirm!",
+  "worldmanager.gui.confirm_type.cancel.name": "<red>Cancel!",
+  "worldmanager.gui.confirm_type.cancel.lore": "<gray>Click to cancel!",
 
   "worldmanager.gui.configure.title": "Configure ${id}",
   "worldmanager.gui.configure.type.name": "<yellow>Configure Dimension Type",

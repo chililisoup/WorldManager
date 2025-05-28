@@ -2,7 +2,9 @@ package me.drex.worldmanager.save;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.Optional;
 
@@ -19,4 +21,13 @@ public class WorldData {
         data.icon = icon;
         return data;
     })));
+
+    public GuiElementBuilder iconGuiElement() {
+        if (icon.isEmpty()) {
+            return new GuiElementBuilder(Items.PLAYER_HEAD)
+                .setSkullOwner("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmFkYzA0OGE3Y2U3OGY3ZGFkNzJhMDdkYTI3ZDg1YzA5MTY4ODFlNTUyMmVlZWQxZTNkYWYyMTdhMzhjMWEifX19");
+        } else {
+            return new GuiElementBuilder(icon);
+        }
+    }
 }

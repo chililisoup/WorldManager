@@ -41,27 +41,17 @@ public abstract class PagedGui<T> extends SimpleGui {
             setSlot(slotIndex, toGuiElement(element));
         }
 
-        setSlot(slots, new GuiElementBuilder(Items.SPECTRAL_ARROW)
+        setSlot(slots, new GuiElementBuilder(Items.PLAYER_HEAD)
+            .setSkullOwner(SkullTextures.ARROW_LEFT)
             .setName(localized("worldmanager.gui.paged.previous_page.name"))
             .setCallback(() -> {
                 page = Math.max(page - 1, 0);
                 build();
             })
         );
-        setSlot(slots, new GuiElementBuilder(Items.SPECTRAL_ARROW)
-            .setName(localized("worldmanager.gui.paged.previous_page.name"))
-            .setCallback(() -> {
-                page = Math.max(page - 1, 0);
-                build();
-            })
-        );
-        if (previousGui != null) {
-            setSlot(slots + 4, new GuiElementBuilder(Items.OAK_DOOR)
-                .setName(localized("worldmanager.gui.generic.back.name"))
-                .setCallback(previousGui::open)
-            );
-        }
-        setSlot(slots + 8, new GuiElementBuilder(Items.SPECTRAL_ARROW)
+        setSlot(slots + 4, GuiElements.back(previousGui));
+        setSlot(slots + 8, new GuiElementBuilder(Items.PLAYER_HEAD)
+            .setSkullOwner(SkullTextures.ARROW_RIGHT)
             .setName(localized("worldmanager.gui.paged.next_page.name"))
             .setCallback(() -> {
                 var maxPage = (elements.size() - 1) / slots;

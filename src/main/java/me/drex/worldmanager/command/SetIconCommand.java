@@ -36,12 +36,12 @@ public class SetIconCommand {
                     .suggests(WORLD_SUGGESTIONS)
                     .then(
                         Commands.argument("icon", ItemArgument.item(commandBuildContext))
-                            .executes(context -> setIcon(context.getSource(), ResourceLocationArgument.getId(context, "id"), ItemArgument.getItem(context, "icon")))
-                    )
+                            .executes(context -> setIcon(context.getSource(), ResourceLocationArgument.getId(context, "id"), ItemArgument.getItem(context, "icon").createItemStack(1, false)))
+                    ).executes(context -> setIcon(context.getSource(), ResourceLocationArgument.getId(context, "id"), context.getSource().getPlayerOrException().getMainHandItem()))
             );
     }
 
-    public static int setIcon(CommandSourceStack source, ResourceLocation id, ItemInput itemInput) throws CommandSyntaxException {
+    public static int setIcon(CommandSourceStack source, ResourceLocation id, ItemStack icon) throws CommandSyntaxException {
         MinecraftServer server = source.getServer();
         WorldManagerSavedData savedData = WorldManagerSavedData.getSavedData(server);
         WorldConfig config = savedData.getConfig(id);
@@ -49,7 +49,6 @@ public class SetIconCommand {
         if (config == null) {
             throw UNKNOWN_WORLD.create();
         }
-        ItemStack icon = itemInput.createItemStack(1, false);
         config.data.icon = icon;
         savedData.setDirty();
 

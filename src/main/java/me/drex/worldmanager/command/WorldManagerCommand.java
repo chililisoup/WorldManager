@@ -3,7 +3,6 @@ package me.drex.worldmanager.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import me.drex.worldmanager.gui.list.WorldList;
 import me.drex.worldmanager.save.WorldManagerSavedData;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.commands.CommandBuildContext;
@@ -32,10 +31,6 @@ public class WorldManagerCommand {
         var root = dispatcher.register(
             literal("worldmanager")
                 .requires(Permissions.require("worldmanager.command.worldmanager", 2))
-                .executes(context -> {
-                    new WorldList(context.getSource().getPlayerOrException()).open();
-                    return 1;
-                })
                 .then(DeleteCommand.build())
                 .then(SpawnCommand.build())
                 .then(SetIconCommand.build(commandBuildContext))
@@ -43,15 +38,13 @@ public class WorldManagerCommand {
                 .then(TeleportCommand.build())
                 .then(CreateCommand.build())
                 .then(ImportCommand.build())
+                .then(ManageCommand.build())
+                .then(ListCommand.build())
         );
 
         dispatcher.register(
             literal("wm")
                 .requires(Permissions.require("worldmanager.command.worldmanager", 2))
-                .executes(context -> {
-                    new WorldList(context.getSource().getPlayerOrException()).open();
-                    return 1;
-                })
                 .redirect(root)
         );
     }
