@@ -42,7 +42,7 @@ public class ConfigureWorld extends SimpleGui {
         super(MenuType.GENERIC_9x3, player, false);
         this.id = id;
         setTitle(LocalizedMessage.builder("worldmanager.gui.configure.title").addPlaceholder("id", id.toString()).build());
-        setupDefaults(player.server);
+        setupDefaults(player.getServer());
         build();
     }
 
@@ -95,7 +95,7 @@ public class ConfigureWorld extends SimpleGui {
             setSlot(i,
                 builder(Items.GREEN_STAINED_GLASS_PANE, "confirm")
                     .setCallback(() -> {
-                        var server = player.server;
+                        var server = player.getServer();
                         WorldConfig config = new WorldConfig(
                             type,
                             generator,

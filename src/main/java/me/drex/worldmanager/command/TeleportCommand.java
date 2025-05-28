@@ -67,7 +67,7 @@ public class TeleportCommand {
         ServerLevel serverLevel = player.getServer().getLevel(resourceKey);
         if (serverLevel == null) return false;
 
-        if (player.serverLevel() == serverLevel) return false;
+        if (player.level() == serverLevel) return false;
         PlayerData playerData = PlayerDataApi.getCustomDataFor(player, WorldManager.STORAGE);
         var spawnLocation = Optional.<Location>empty();
         if (config != null) {

@@ -18,7 +18,8 @@ import java.util.Collections;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin {
-    @Shadow public abstract ServerLevel serverLevel();
+    @Shadow
+    public abstract ServerLevel /*? if >= 1.21.6-pre1 {*/ /*level()*/ /*? } else {*/ serverLevel() /*? }*/;
 
     @Inject(
         //? if >= 1.21.2 {
@@ -38,6 +39,6 @@ public abstract class ServerPlayerMixin {
             playerData = new PlayerData(Collections.emptyMap());
             PlayerDataApi.setCustomDataFor(player, WorldManager.STORAGE, playerData);
         }
-        playerData.locations().put(serverLevel().dimension(), new Location(player));
+        playerData.locations().put(/*? if >= 1.21.6-pre1 {*/ /*level()*/ /*? } else {*/ serverLevel() /*? }*/.dimension(), new Location(player));
     }
 }
