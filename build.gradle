@@ -81,8 +81,8 @@ publishMods {
 	}
 	github {
 		accessToken = providers.environmentVariable("GITHUB_TOKEN")
-		repository = providers.environmentVariable("GITHUB_REPOSITORY").getOrElse("DrexHD/dryrun")
-		commitish = providers.environmentVariable("GITHUB_REF_NAME").getOrElse("dryrun")
+		repository = providers.environmentVariable("GITHUB_REPOSITORY").getOrElse("DrexHD/WorldManager")
+		commitish = providers.environmentVariable("GITHUB_REF_NAME").getOrElse("main")
 	}
 }
 
