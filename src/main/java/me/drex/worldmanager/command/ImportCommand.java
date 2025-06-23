@@ -1,17 +1,13 @@
 package me.drex.worldmanager.command;
 
-import com.github.junrar.Archive;
-import com.github.junrar.exception.RarException;
-import com.github.junrar.exception.UnsupportedRarV5Exception;
-import com.github.junrar.rarfile.FileHeader;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import me.drex.worldmanager.WorldManager;
+import me.drex.worldmanager.extractor.*;
 import me.drex.worldmanager.mixin.MinecraftServerAccessor;
 import me.drex.worldmanager.save.Location;
 import me.drex.worldmanager.save.WorldConfig;
@@ -42,22 +38,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import static me.drex.message.api.LocalizedMessage.builder;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
-import static net.minecraft.world.level.storage.LevelResource.LEVEL_DATA_FILE;
 
 public class ImportCommand {
 
     public static final Set<String> DIMENSION_PREFIXES = Set.of("data", "region", "entities", "poi");
-    public static final Set<String> SUPPORTED_EXTENSIONS = Set.of("zip", "rar");
+    private static final List<ArchiveExtractor> EXTRACTORS = List.of(
+        new FolderArchiveExtractor(),
+        new ZipArchiveExtractor(),
+        new RarArchiveExtractor(),
+        new TarGzArchiveExtractor()
+    );
     public static final SuggestionProvider<CommandSourceStack> PATHS = (context, builder) ->
     {
         try {
@@ -66,8 +61,7 @@ public class ImportCommand {
                     if (Files.isDirectory(path)) {
                         return true;
                     } else {
-                        String extension = FilenameUtils.getExtension(path.toString());
-                        return SUPPORTED_EXTENSIONS.contains(extension);
+                        return EXTRACTORS.stream().anyMatch(archiveExtractor -> archiveExtractor.supports(path));
                     }
                 }).map(Path::toString).toList(), builder
             );
@@ -83,7 +77,6 @@ public class ImportCommand {
         .addPlaceholder("extension", extension.toString())
         .build());
     public static final DynamicCommandExceptionType IO_EXCEPTION = new DynamicCommandExceptionType((file) -> builder("worldmanager.command.import.exception.ioexception").addPlaceholder("file", file.toString()).build());
-
 
     public static LiteralArgumentBuilder<CommandSourceStack> build() {
         return literal("import")
@@ -106,18 +99,13 @@ public class ImportCommand {
                                 Path fullPath = FabricLoader.getInstance().getGameDir().resolve(localPath);
                                 WorldConfig config;
                                 try {
-                                    if (Files.isDirectory(fullPath)) {
-                                        config = copyFolder(fullPath, targetPath, server);
-                                    } else {
-                                        String extension = FilenameUtils.getExtension(fullPath.toString());
-                                        if (extension.equalsIgnoreCase("zip")) {
-                                            config = extractZip(fullPath, targetPath, server);
-                                        } else if (extension.equalsIgnoreCase("rar")) {
-                                            config = extractRar(fullPath, targetPath, server);
-                                        } else {
-                                            throw UNKNOWN_EXTENSION.create(fullPath, extension);
-                                        }
+                                    Optional<ArchiveExtractor> extractor = EXTRACTORS.stream()
+                                        .filter(e -> e.supports(fullPath))
+                                        .findFirst();
+                                    if (extractor.isEmpty()) {
+                                        throw UNKNOWN_EXTENSION.create(fullPath, FilenameUtils.getExtension(fullPath.toString()));
                                     }
+                                    config = extractor.get().extract(fullPath, targetPath, server);
                                 } catch (IOException e) {
                                     throw IO_EXCEPTION.create(fullPath);
                                 }
@@ -132,133 +120,8 @@ public class ImportCommand {
             );
     }
 
-    private static WorldConfig extractZip(Path zipPath, Path targetPath, MinecraftServer server) throws CommandSyntaxException, IOException {
-        Optional<WorldConfig> config = Optional.empty();
-        try (ZipFile zipFile = new ZipFile(zipPath.toFile())) {
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            Path root = Path.of(".");
-            while (entries.hasMoreElements()) {
-                ZipEntry zipEntry = entries.nextElement();
-                Path path = Path.of(zipEntry.getName());
-                if (path.getFileName().toString().equals(LEVEL_DATA_FILE.getId())) {
-                    root = path.getParent();
-                    try (var is = zipFile.getInputStream(zipEntry)) {
-                        config = parseWorldConfig(is, server);
-                    }
-                    break;
-                }
-            }
-            if (config.isEmpty()) throw MISSING_LEVEL_DAT.create(zipPath);
-
-            // Copy files
-            Iterator<? extends ZipEntry> iterator = zipFile.entries().asIterator();
-            while (iterator.hasNext()) {
-                ZipEntry zipEntry = iterator.next();
-                Path entryPath = Paths.get(zipEntry.getName());
-                Path relativize = root.relativize(entryPath);
-
-                String topDir = relativize.getName(0).toString();
-                if (!DIMENSION_PREFIXES.contains(topDir)) continue;
-
-                Path resolvedPath = targetPath.resolve(relativize);
-
-                if (zipEntry.isDirectory()) {
-                    Files.createDirectories(resolvedPath);
-                } else {
-                    Files.createDirectories(resolvedPath.getParent());
-                    try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
-                        Files.copy(inputStream, resolvedPath, StandardCopyOption.REPLACE_EXISTING);
-                    }
-                }
-            }
-        }
-        return config.get();
-    }
-
-    private static WorldConfig extractRar(Path rarPath, Path targetPath, MinecraftServer server) throws CommandSyntaxException, IOException {
-        Optional<WorldConfig> config = Optional.empty();
-        try {
-            Archive archive = new Archive(Files.newInputStream(rarPath));
-            Path root = Path.of(".");
-            List<FileHeader> fileHeaders = archive.getFileHeaders();
-            for (FileHeader fileHeader : fileHeaders) {
-                String fileName = fileHeader.getFileName().replace('\\', '/');
-                Path path = Paths.get(fileName);
-                if (path.getFileName().toString().equals(LEVEL_DATA_FILE.getId())) {
-                    root = path.getParent();
-                    try (var is = archive.getInputStream(fileHeader)) {
-                        config = parseWorldConfig(is, server);
-                    }
-                    break;
-                }
-            }
-            if (config.isEmpty()) throw MISSING_LEVEL_DAT.create(rarPath);
-
-            // Copy files
-            for (FileHeader fileHeader : fileHeaders) {
-                Path entryPath = Paths.get(fileHeader.getFileName().replace('\\', '/'));
-                Path relativize = root.relativize(entryPath);
-
-                String topDir = relativize.getName(0).toString();
-                if (!DIMENSION_PREFIXES.contains(topDir)) continue;
-
-                Path resolvedPath = targetPath.resolve(relativize);
-
-                if (fileHeader.isDirectory()) {
-                    Files.createDirectories(resolvedPath);
-                } else {
-                    Files.createDirectories(resolvedPath.getParent());
-                    try (InputStream inputStream = archive.getInputStream(fileHeader)) {
-                        Files.copy(inputStream, resolvedPath, StandardCopyOption.REPLACE_EXISTING);
-                    }
-                }
-            }
-            return config.get();
-        } catch (RarException e) {
-            if (e instanceof UnsupportedRarV5Exception) {
-                throw RAR5.create(rarPath);
-            } else {
-                throw new IOException(e);
-            }
-        }
-    }
-
-    private static WorldConfig copyFolder(Path folderPath, Path targetPath, MinecraftServer server) throws CommandSyntaxException, IOException {
-        Optional<WorldConfig> config = Optional.empty();
-        Path root = Path.of(".");
-        try (Stream<Path> pathStream = Files.find(folderPath, 10, (path, basicFileAttributes) -> path.getFileName().toString().equals(LEVEL_DATA_FILE.getId()))) {
-            Optional<Path> first = pathStream.findFirst();
-            if (first.isPresent()) {
-                root = first.get().getParent();
-                config = parseWorldConfig(Files.newInputStream(first.get()), server);
-            }
-        }
-        if (config.isEmpty()) throw MISSING_LEVEL_DAT.create(folderPath);
-
-        // Copy files
-        try (Stream<Path> files = Files.walk(root)) {
-            for (Path path : files.toList()) {
-                Path relativize = root.relativize(path);
-                String topDir = relativize.getName(0).toString();
-                if (!DIMENSION_PREFIXES.contains(topDir)) continue;
-
-                Path resolvedPath = targetPath.resolve(relativize);
-
-                if (Files.isDirectory(path)) {
-                    Files.createDirectories(resolvedPath);
-                } else {
-                    Files.createDirectories(resolvedPath.getParent());
-                    try (InputStream inputStream = Files.newInputStream(path)) {
-                        Files.copy(inputStream, resolvedPath, StandardCopyOption.REPLACE_EXISTING);
-                    }
-                }
-            }
-        }
-        return config.get();
-    }
-
     //? if >= 1.21.5 {
-    private static Optional<WorldConfig> parseWorldConfig(InputStream is, MinecraftServer server) throws IOException {
+    public static Optional<WorldConfig> parseWorldConfig(InputStream is, MinecraftServer server) throws IOException {
         CompoundTag tag = NbtIo.readCompressed(is, NbtAccounter.unlimitedHeap());
         return tag.getCompound("Data")
             .flatMap(data -> {
@@ -279,7 +142,7 @@ public class ImportCommand {
             });
     }
     //?} else {
-    /*private static Optional<WorldConfig> parseWorldConfig(InputStream is, MinecraftServer server) throws IOException {
+    /*public static Optional<WorldConfig> parseWorldConfig(InputStream is, MinecraftServer server) throws IOException {
         CompoundTag tag = NbtIo.readCompressed(is, NbtAccounter.unlimitedHeap());
         var data = tag.getCompound("Data");
 
