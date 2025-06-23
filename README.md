@@ -16,10 +16,15 @@ The main command is `/worldmanager`. It has a shorter alias `/wm`.
 `/wm create <id> <nbt>` allows you to create a world without using the gui (advanced). `{seed: 0L, generator: {biome: "minecraft:the_void", type: "fantasy:void"}, type: "minecraft:overworld"}` could be used to create a void world.
 
 ### Import
-`/wm create <id> <file>` allows you to import a world from a zip, rar or tar archive, or from a folder.
+`/wm create <id> <path> [--custom-config]` allows you to import a world from a zip, rar or tar archive, or from a folder.
 
 The file / folder needs to contain a valid `level.dat` file.
 This will import the overworld dimension of the given world.
+
+#### Multiverse
+Multiverse doesn't correctly specify the world configuration. WorldManager won't be able to infer configurations like
+world height or chunk generation. You should append `--custom-config` when importing to manually configure your world 
+to match the original configuration as close as possible.
 
 ### Spawn
 `/wm setspawn` sets the world spawn of the current world to your position.

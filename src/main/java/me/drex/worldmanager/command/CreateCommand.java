@@ -3,7 +3,7 @@ package me.drex.worldmanager.command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import me.drex.worldmanager.gui.create.ConfigureWorld;
+import me.drex.worldmanager.gui.CreateWorld;
 import me.drex.worldmanager.save.WorldConfig;
 import me.drex.worldmanager.save.WorldManagerSavedData;
 import me.lucko.fabric.api.permissions.v0.Permissions;
@@ -43,7 +43,7 @@ public class CreateCommand {
                             throw new SimpleCommandExceptionType(localized("worldmanager.command.exception.world_already_exists")).create();
                         }
 
-                        new ConfigureWorld(context.getSource().getPlayerOrException(), id).open();
+                        new CreateWorld(context.getSource().getPlayerOrException(), id).open();
                         return 1;
                     }).then(
                         argument("nbt", CompoundTagArgument.compoundTag())

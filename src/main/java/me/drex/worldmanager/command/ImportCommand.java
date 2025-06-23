@@ -2,12 +2,14 @@ package me.drex.worldmanager.command;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import me.drex.worldmanager.WorldManager;
 import me.drex.worldmanager.extractor.*;
+import me.drex.worldmanager.gui.ImportWorld;
 import me.drex.worldmanager.mixin.MinecraftServerAccessor;
 import me.drex.worldmanager.save.Location;
 import me.drex.worldmanager.save.WorldConfig;
@@ -16,6 +18,7 @@ import me.drex.worldmanager.save.WorldManagerSavedData;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.core.registries.Registries;
@@ -63,7 +66,7 @@ public class ImportCommand {
                     } else {
                         return EXTRACTORS.stream().anyMatch(archiveExtractor -> archiveExtractor.supports(path));
                     }
-                }).map(Path::toString).toList(), builder
+                }).map(path -> "\"" + path + "\"").toList(), builder
             );
         } catch (IOException e) {
             return Suggestions.empty();
@@ -84,40 +87,48 @@ public class ImportCommand {
             .then(
                 argument("id", ResourceLocationArgument.id())
                     .then(
-                        argument("path", StringArgumentType.greedyString())
+                        argument("path", StringArgumentType.string())
                             .suggests(PATHS)
-                            .executes(context -> {
-                                ResourceLocation id = ResourceLocationArgument.getId(context, "id");
-                                MinecraftServer server = context.getSource().getServer();
-                                CreateCommand.validLevelId(id, server);
-
-                                Fantasy fantasy = Fantasy.get(server);
-                                LevelStorageSource.LevelStorageAccess storageSource = ((MinecraftServerAccessor) server).getStorageSource();
-                                Path targetPath = storageSource.getDimensionPath(ResourceKey.create(Registries.DIMENSION, id));
-
-                                Path localPath = Path.of(StringArgumentType.getString(context, "path"));
-                                Path fullPath = FabricLoader.getInstance().getGameDir().resolve(localPath);
-                                WorldConfig config;
-                                try {
-                                    Optional<ArchiveExtractor> extractor = EXTRACTORS.stream()
-                                        .filter(e -> e.supports(fullPath))
-                                        .findFirst();
-                                    if (extractor.isEmpty()) {
-                                        throw UNKNOWN_EXTENSION.create(fullPath, FilenameUtils.getExtension(fullPath.toString()));
-                                    }
-                                    config = extractor.get().extract(fullPath, targetPath, server);
-                                } catch (IOException e) {
-                                    throw IO_EXCEPTION.create(fullPath);
-                                }
-
-                                RuntimeWorldHandle handle = fantasy.getOrOpenPersistentWorld(id, config.toRuntimeWorldConfig());
-                                WorldManagerSavedData savedData = WorldManagerSavedData.getSavedData(server);
-                                savedData.addWorld(id, config, handle);
-                                context.getSource().sendSuccess(() -> builder("worldmanager.command.import").addPlaceholder("id", id.toString()).build(), false);
-                                return 1;
-                            })
+                            .executes(context -> importWorld(context.getSource(), ResourceLocationArgument.getId(context, "id"), StringArgumentType.getString(context, "path"), false))
+                            .then(
+                                Commands.literal("--custom-config")
+                                    .executes(context -> importWorld(context.getSource(), ResourceLocationArgument.getId(context, "id"), StringArgumentType.getString(context, "path"), true))
+                            )
                     )
             );
+    }
+
+    public static int importWorld(CommandSourceStack source, ResourceLocation id, String localPath, boolean customConfig) throws CommandSyntaxException {
+        MinecraftServer server = source.getServer();
+        CreateCommand.validLevelId(id, server);
+
+        Fantasy fantasy = Fantasy.get(server);
+        LevelStorageSource.LevelStorageAccess storageSource = ((MinecraftServerAccessor) server).getStorageSource();
+        Path targetPath = storageSource.getDimensionPath(ResourceKey.create(Registries.DIMENSION, id));
+
+        Path fullPath = FabricLoader.getInstance().getGameDir().resolve(localPath);
+        WorldConfig config;
+        try {
+            Optional<ArchiveExtractor> extractor = EXTRACTORS.stream()
+                .filter(e -> e.supports(fullPath))
+                .findFirst();
+            if (extractor.isEmpty()) {
+                throw UNKNOWN_EXTENSION.create(fullPath, FilenameUtils.getExtension(fullPath.toString()));
+            }
+            config = extractor.get().extract(fullPath, targetPath, server);
+        } catch (IOException e) {
+            throw IO_EXCEPTION.create(fullPath);
+        }
+        if (customConfig) {
+            new ImportWorld(source.getPlayerOrException(), id).open();
+        } else {
+            RuntimeWorldHandle handle = fantasy.getOrOpenPersistentWorld(id, config.toRuntimeWorldConfig());
+            WorldManagerSavedData savedData = WorldManagerSavedData.getSavedData(server);
+            savedData.addWorld(id, config, handle);
+            source.sendSuccess(() -> builder("worldmanager.command.import").addPlaceholder("id", id.toString()).build(), false);
+        }
+
+        return 1;
     }
 
     //? if >= 1.21.5 {

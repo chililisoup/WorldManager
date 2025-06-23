@@ -1,4 +1,4 @@
-package me.drex.worldmanager.gui.create;
+package me.drex.worldmanager.gui.configure;
 
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
@@ -30,13 +30,13 @@ import xyz.nucleoid.fantasy.RuntimeWorldHandle;
 
 import java.util.Optional;
 
-public class ConfigureWorld extends SimpleGui {
+public abstract class ConfigureWorld extends SimpleGui {
 
-    private final ResourceLocation id;
-    private Holder<DimensionType> type;
-    private ChunkGenerator generator;
-    private long seed;
-    private boolean tickTime;
+    protected final ResourceLocation id;
+    protected Holder<DimensionType> type;
+    protected ChunkGenerator generator;
+    protected long seed;
+    protected boolean tickTime;
 
     public ConfigureWorld(ServerPlayer player, ResourceLocation id) {
         super(MenuType.GENERIC_9x3, player, false);
@@ -95,7 +95,6 @@ public class ConfigureWorld extends SimpleGui {
             setSlot(i,
                 builder(Items.GREEN_STAINED_GLASS_PANE, "confirm")
                     .setCallback(() -> {
-                        var server = player.getServer();
                         WorldConfig config = new WorldConfig(
                             type,
                             generator,
@@ -103,18 +102,14 @@ public class ConfigureWorld extends SimpleGui {
                             tickTime,
                             new WorldData()
                         );
-                        Fantasy fantasy = Fantasy.get(server);
-
-                        RuntimeWorldHandle handle = fantasy.getOrOpenPersistentWorld(id, config.toRuntimeWorldConfig());
-
-                        WorldManagerSavedData savedData = WorldManagerSavedData.getSavedData(server);
-                        savedData.addWorld(id, config, handle);
-                        player.sendSystemMessage(LocalizedMessage.builder("worldmanager.command.create").addPlaceholder("id", id.toString()).build());
+                        confirm(config);
                         close();
                     })
             );
         }
     }
+
+    protected abstract void confirm(WorldConfig config);
 
     private GuiElementBuilder builder(Item item, String id) {
         var access = player.registryAccess();

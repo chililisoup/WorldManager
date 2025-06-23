@@ -1,4 +1,4 @@
-package me.drex.worldmanager.gui.create;
+package me.drex.worldmanager.gui.configure;
 
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
