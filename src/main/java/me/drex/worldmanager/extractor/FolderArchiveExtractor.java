@@ -28,7 +28,9 @@ public class FolderArchiveExtractor implements ArchiveExtractor {
         try (Stream<Path> pathStream = Files.find(folderPath, 10, (path, basicFileAttributes) -> path.getFileName().toString().equals(LEVEL_DATA_FILE.getId()))) {
             Optional<Path> first = pathStream.findFirst();
             if (first.isPresent()) {
-                root = first.get().getParent();
+                Path parent = first.get().getParent();
+                if (parent != null) root = parent;
+
                 config = parseWorldConfig(Files.newInputStream(first.get()), server);
             }
         }

@@ -37,7 +37,9 @@ public class ZipArchiveExtractor implements ArchiveExtractor {
                 ZipEntry zipEntry = entries.nextElement();
                 Path path = Path.of(zipEntry.getName());
                 if (path.getFileName().toString().equals(LEVEL_DATA_FILE.getId())) {
-                    root = path.getParent();
+                    Path parent = path.getParent();
+                    if (parent != null) root = parent;
+
                     try (var is = zipFile.getInputStream(zipEntry)) {
                         config = parseWorldConfig(is, server);
                     }

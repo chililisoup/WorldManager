@@ -39,7 +39,9 @@ public class RarArchiveExtractor implements ArchiveExtractor {
                 String fileName = fileHeader.getFileName().replace('\\', '/');
                 Path path = Paths.get(fileName);
                 if (path.getFileName().toString().equals(LEVEL_DATA_FILE.getId())) {
-                    root = path.getParent();
+                    Path parent = path.getParent();
+                    if (parent != null) root = parent;
+
                     try (var is = archive.getInputStream(fileHeader)) {
                         config = parseWorldConfig(is, server);
                     }
