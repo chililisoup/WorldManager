@@ -1,0 +1,3 @@
+accessWidener v2 named
+accessible method net/minecraft/world/level/GameRules$Value deserialize (Ljava/lang/String;)V
+accessible method net/minecraft/world/level/GameRules$Value onChanged (Lnet/minecraft/server/MinecraftServer;)V

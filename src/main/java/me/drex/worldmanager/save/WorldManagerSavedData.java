@@ -1,17 +1,12 @@
 package me.drex.worldmanager.save;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 //? if >= 1.21.5 {
 import net.minecraft.world.level.saveddata.SavedDataType;
 //?}
-import org.jetbrains.annotations.NotNull;
 import xyz.nucleoid.fantasy.Fantasy;
 import xyz.nucleoid.fantasy.RuntimeWorldHandle;
 
@@ -63,13 +58,15 @@ public class WorldManagerSavedData extends SavedData {
     public void loadWorlds(MinecraftServer server) {
         this.worlds.forEach((id, worldConfig) -> {
             RuntimeWorldHandle handle = Fantasy.get(server).getOrOpenPersistentWorld(id, worldConfig.toRuntimeWorldConfig());
+            worldConfig.data.rules.attachGameRules(handle.asWorld().getGameRules(), server);
             worldHandles.put(id, handle);
         });
     }
 
-    public void addWorld(ResourceLocation id, WorldConfig config, RuntimeWorldHandle handle) {
+    public void addWorld(ResourceLocation id, WorldConfig config, RuntimeWorldHandle handle, MinecraftServer server) {
         worlds.put(id, config);
         worldHandles.put(id, handle);
+        config.data.rules.attachGameRules(handle.asWorld().getGameRules(), server);
         setDirty();
     }
 

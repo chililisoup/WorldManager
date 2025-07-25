@@ -26,6 +26,7 @@ repositories {
 }
 
 loom {
+    accessWidenerPath = rootProject.file("src/main/resources/worldmanager.accesswidener")
     splitEnvironmentSourceSets()
 
     runConfigs.all {

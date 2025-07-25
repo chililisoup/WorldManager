@@ -10,6 +10,7 @@
 	"license": "MIT",
 	"icon": "assets/worldmanager/icon.png",
 	"environment": "*",
+	"accessWidener": "worldmanager.accesswidener",
 	"entrypoints": {
 		"main": [
 			"me.drex.worldmanager.WorldManager"

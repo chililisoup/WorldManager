@@ -22,7 +22,7 @@ public class CreateWorld extends ConfigureWorld {
         RuntimeWorldHandle handle = fantasy.getOrOpenPersistentWorld(id, config.toRuntimeWorldConfig());
 
         WorldManagerSavedData savedData = WorldManagerSavedData.getSavedData(server);
-        savedData.addWorld(id, config, handle);
+        savedData.addWorld(id, config, handle, server);
         player.sendSystemMessage(LocalizedMessage.builder("worldmanager.command.create").addPlaceholder("id", id.toString()).build());
     }
 }

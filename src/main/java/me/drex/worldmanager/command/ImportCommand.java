@@ -124,7 +124,7 @@ public class ImportCommand {
         } else {
             RuntimeWorldHandle handle = fantasy.getOrOpenPersistentWorld(id, config.toRuntimeWorldConfig());
             WorldManagerSavedData savedData = WorldManagerSavedData.getSavedData(server);
-            savedData.addWorld(id, config, handle);
+            savedData.addWorld(id, config, handle, server);
             source.sendSuccess(() -> builder("worldmanager.command.import").addPlaceholder("id", id.toString()).build(), false);
         }
 

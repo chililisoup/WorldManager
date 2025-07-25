@@ -5,7 +5,6 @@ import eu.pb4.sgui.api.gui.SimpleGui;
 import me.drex.message.api.LocalizedMessage;
 import me.drex.worldmanager.save.WorldConfig;
 import me.drex.worldmanager.save.WorldData;
-import me.drex.worldmanager.save.WorldManagerSavedData;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
@@ -22,11 +21,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
-import xyz.nucleoid.fantasy.Fantasy;
-import xyz.nucleoid.fantasy.RuntimeWorldHandle;
 
 import java.util.Optional;
 
@@ -36,7 +34,7 @@ public abstract class ConfigureWorld extends SimpleGui {
     protected Holder<DimensionType> type;
     protected ChunkGenerator generator;
     protected long seed;
-    protected boolean tickTime;
+    protected WorldData worldData;
 
     public ConfigureWorld(ServerPlayer player, ResourceLocation id) {
         super(MenuType.GENERIC_9x3, player, false);
@@ -52,7 +50,8 @@ public abstract class ConfigureWorld extends SimpleGui {
         this.type = dimensionType.getOrThrow(BuiltinDimensionTypes.OVERWORLD);
         this.generator = server.overworld().getChunkSource().getGenerator();
         this.seed = 0;
-        tickTime = true;
+        this.worldData = new WorldData();
+        worldData.rules.set(GameRules.RULE_DAYLIGHT, true);
     }
 
     public void build() {
@@ -86,7 +85,28 @@ public abstract class ConfigureWorld extends SimpleGui {
         setSlot(3,
             builder(Items.CLOCK, "tick_time")
                 .setCallback(() -> {
-                    this.tickTime = !this.tickTime;
+                    this.worldData.rules.toggle(GameRules.RULE_DAYLIGHT);
+                    build();
+                })
+        );
+        setSlot(4,
+            builder(this.worldData.rules.getBoolean(GameRules.RULE_WEATHER_CYCLE) ? Items.WATER_BUCKET : Items.BUCKET, "weather_cycle")
+                .setCallback(() -> {
+                    this.worldData.rules.toggle(GameRules.RULE_WEATHER_CYCLE);
+                    build();
+                })
+        );
+        setSlot(5,
+            builder(Items.ZOMBIE_SPAWN_EGG, "mob_spawning")
+                .setCallback(() -> {
+                    this.worldData.rules.toggle(GameRules.RULE_DOMOBSPAWNING);
+                    build();
+                })
+        );
+        setSlot(6,
+            builder(Items.CREEPER_HEAD, "mob_griefing")
+                .setCallback(() -> {
+                    this.worldData.rules.toggle(GameRules.RULE_MOBGRIEFING);
                     build();
                 })
         );
@@ -99,8 +119,7 @@ public abstract class ConfigureWorld extends SimpleGui {
                             type,
                             generator,
                             seed,
-                            tickTime,
-                            new WorldData()
+                            worldData
                         );
                         confirm(config);
                         close();
@@ -126,7 +145,10 @@ public abstract class ConfigureWorld extends SimpleGui {
                 .addPlaceholder("generator", generator.getTypeNameForDataFixer().map(ResourceKey::location).map(ResourceLocation::toString).orElse("???"))
                 .addPlaceholder("generator_full", lore)
                 .addPlaceholder("seed", seed)
-                .addPlaceholder("tick_time", tickTime)
+                .addPlaceholder("tick_time", worldData.rules.getBoolean(GameRules.RULE_DAYLIGHT))
+                .addPlaceholder("weather_cycle", worldData.rules.getBoolean(GameRules.RULE_WEATHER_CYCLE))
+                .addPlaceholder("mob_spawning", worldData.rules.getBoolean(GameRules.RULE_DOMOBSPAWNING))
+                .addPlaceholder("mob_griefing", worldData.rules.getBoolean(GameRules.RULE_MOBGRIEFING))
                 .build());
     }
 }

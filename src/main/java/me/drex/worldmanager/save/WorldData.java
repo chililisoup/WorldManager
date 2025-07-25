@@ -11,14 +11,17 @@ import java.util.Optional;
 public class WorldData {
     public Optional<Location> spawnLocation = Optional.empty();
     public ItemStack icon = ItemStack.EMPTY;
+    public GameRuleHolder rules = new GameRuleHolder();
 
     public static final Codec<WorldData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         Location.CODEC.optionalFieldOf("spawn_location").forGetter(worldData -> worldData.spawnLocation),
-        ItemStack.CODEC.optionalFieldOf("icon", ItemStack.EMPTY).forGetter(worldData -> worldData.icon)
-    ).apply(instance, instance.stable((location, icon) -> {
+        ItemStack.CODEC.optionalFieldOf("icon", ItemStack.EMPTY).forGetter(worldData -> worldData.icon),
+        GameRuleHolder.CODEC.optionalFieldOf("game_rules", new GameRuleHolder()).forGetter(worldData -> worldData.rules)
+    ).apply(instance, instance.stable((location, icon, rules) -> {
         WorldData data = new WorldData();
         data.spawnLocation = location;
         data.icon = icon;
+        data.rules.init(rules);
         return data;
     })));
 

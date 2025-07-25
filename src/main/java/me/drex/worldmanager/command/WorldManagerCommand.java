@@ -40,6 +40,7 @@ public class WorldManagerCommand {
                 .then(ImportCommand.build())
                 .then(ManageCommand.build())
                 .then(ListCommand.build())
+                .then(GameRuleCommand.build(commandBuildContext))
         );
 
         dispatcher.register(

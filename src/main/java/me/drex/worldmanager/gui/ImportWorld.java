@@ -22,7 +22,7 @@ public class ImportWorld extends ConfigureWorld {
 
         RuntimeWorldHandle handle = fantasy.getOrOpenPersistentWorld(id, config.toRuntimeWorldConfig());
         WorldManagerSavedData savedData = WorldManagerSavedData.getSavedData(server);
-        savedData.addWorld(id, config, handle);
+        savedData.addWorld(id, config, handle, server);
         player.sendSystemMessage(builder("worldmanager.command.import").addPlaceholder("id", id.toString()).build(), false);
     }
 }

@@ -13,6 +13,8 @@
   "worldmanager.command.setspawn": "Set world spawn point in ${id} to ${position_x} ${position_y} ${position_z}",
   "worldmanager.command.spawn": "Teleporting to world spawn of ${id}",
   "worldmanager.command.teleport": "Teleporting to ${id}",
+  "worldmanager.command.gamerule.set": "Gamerule ${key} for ${id} is now set to: ${value}",
+  "worldmanager.command.gamerule.query": "Gamerule ${key} for ${id} is currently set to: ${value}",
 
   "worldmanager.gui.generic.back.name": "<red>Back",
 
@@ -36,6 +38,14 @@
   "worldmanager.gui.manage_world.spawn.lore": "<gray>Teleport to the world spawn",
   "worldmanager.gui.manage_world.icon.name": "<yellow>Change World Icon!",
   "worldmanager.gui.manage_world.icon.lore": "<gray>Set the world icon to the item in your hand",
+  "worldmanager.gui.manage_world.daylight_cycle.name": "<light_purple>Toggle Time Ticking!",
+  "worldmanager.gui.manage_world.daylight_cycle.lore": "<gray>Enable / disable daylight cycle in the world\n\nCurrent: <gold>${daylight_cycle}",
+  "worldmanager.gui.manage_world.weather_cycle.name": "<light_purple>Toggle Weather Cycle!",
+  "worldmanager.gui.manage_world.weather_cycle.lore": "<gray>Enable / disable weather changing in the world\n\nCurrent: <gold>${weather_cycle}",
+  "worldmanager.gui.manage_world.mob_spawning.name": "<light_purple>Toggle Mob Spawning!",
+  "worldmanager.gui.manage_world.mob_spawning.lore": "<gray>Enable / disable mob spawning in the world\n\nCurrent: <gold>${mob_spawning}",
+  "worldmanager.gui.manage_world.mob_griefing.name": "<light_purple>Toggle Mob Griefing!",
+  "worldmanager.gui.manage_world.mob_griefing.lore": "<gray>Enable / disable mob griefing in the world\n\nCurrent: <gold>${mob_griefing}",
   "worldmanager.gui.manage_world.delete.name": "<dark_red><bold>Delete World!",
   "worldmanager.gui.manage_world.delete.lore": "<gray>Deletes the world, kicking all players that are currently in it",
 
@@ -54,6 +64,12 @@
   "worldmanager.gui.configure.generator.lore": "<gray>How the world is shaped\n\nCurrent:\n${generator_full}",
   "worldmanager.gui.configure.tick_time.name": "<aqua>Time Ticking",
   "worldmanager.gui.configure.tick_time.lore": "<gray>Enable / disable daylight cycle\n\nCurrent: <gold>${tick_time}",
+  "worldmanager.gui.configure.weather_cycle.name": "<aqua>Toggle Weather Cycle",
+  "worldmanager.gui.configure.weather_cycle.lore": "<gray>Enable / disable weather changing\n\nCurrent: <gold>${weather_cycle}",
+  "worldmanager.gui.configure.mob_spawning.name": "<aqua>Toggle Mob Spawning",
+  "worldmanager.gui.configure.mob_spawning.lore": "<gray>Enable / disable mob spawning\n\nCurrent: <gold>${mob_spawning}",
+  "worldmanager.gui.configure.mob_griefing.name": "<aqua>Toggle Mob Griefing",
+  "worldmanager.gui.configure.mob_griefing.lore": "<gray>Enable / disable mob griefing\n\nCurrent: <gold>${mob_griefing}",
   "worldmanager.gui.configure.confirm.name": "<green><bold>Confirm!",
   "worldmanager.gui.configure.confirm.lore": "<gray>Confirm configuration and create world!"
 }
