@@ -1,12 +1,17 @@
 package me.drex.worldmanager.save;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 //? if >= 1.21.5 {
 import net.minecraft.world.level.saveddata.SavedDataType;
 //?}
+import org.jetbrains.annotations.NotNull;
 import xyz.nucleoid.fantasy.Fantasy;
 import xyz.nucleoid.fantasy.RuntimeWorldHandle;
 
