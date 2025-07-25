@@ -98,7 +98,7 @@ public class GameRuleCommand {
          CommandSourceStack source = context.getSource();
          try {
              return ResourceLocationArgument.getId(context, "id");
-         } catch (IllegalStateException e) {
+         } catch (IllegalArgumentException e) {
              return source.getLevel().dimension().location();
          }
      }
